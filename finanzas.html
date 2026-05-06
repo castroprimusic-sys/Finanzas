@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas Familiares - Priscilla & Isaac</title>
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --accent: #7c5cfc;
+            --green: #00d4aa;
+            --red: #ff4d6a;
+            --gold: #f0b90b;
+            --text: #e0e0e0;
+            --muted: #8888aa;
+            --border: #2a2a40;
+            --tag-fijo: #ff6b9d;
+            --tag-variable: #ffb347;
+            --priscilla: #ff7eb3;
+            --isaac: #7ec8e3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .sync-status {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 1.5s infinite;
+        }
+        .sync-dot.syncing {
+            background: var(--gold);
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0 8px;
+        }
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        header .mes {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .resumen-item {
+            text-align: center;
+            padding: 12px 6px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .resumen-item .label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .resumen-item .valor {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+        .ingreso .valor {
+            color: var(--green);
+        }
+        .gasto .valor {
+            color: var(--red);
+        }
+        .utilidad .valor {
+            color: var(--gold);
+        }
+
+        .barra-container {
+            margin-top: 6px;
+        }
+        .barra-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .barra {
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .barra-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .barra-gasto {
+            background: var(--red);
+        }
+
+        .seccion-titulo {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.9rem;
+        }
+        .row:last-child {
+            border-bottom: none;
+        }
+        .row-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .row-icono {
+            font-size: 1.2rem;
+            width: 26px;
+            text-align: center;
+        }
+        .tag {
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-left: 4px;
+        }
+        .tag-fijo {
+            background: rgba(255, 107, 157, 0.2);
+            color: var(--tag-fijo);
+        }
+        .tag-variable {
+            background: rgba(255, 179, 71, 0.2);
+            color: var(--tag-variable);
+        }
+        .tag-priscilla {
+            background: rgba(255, 126, 179, 0.2);
+            color: var(--priscilla);
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+        .tag-isaac {
+            background: rgba(126, 200, 227, 0.2);
+            color: var(--isaac);
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .ahorro-monto {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .ahorro-porcentaje {
+            font-size: 0.68rem;
+            color: var(--muted);
+            display: block;
+        }
+        .total-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .disponible-box {
+            background: rgba(0, 212, 170, 0.07);
+            border: 2px solid var(--green);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .disponible-box .label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .disponible-box .valor {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .eventos-card {
+            border-left: 3px solid var(--accent);
+        }
+        .desglose-gastos {
+            font-size: 0.78rem;
+        }
+        .desglose-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: var(--muted);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            margin-top: 6px;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+            margin-top: 6px;
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            z-index: 200;
+            animation: slideDown 0.3s ease, fadeOut 0.3s ease 2s forwards;
+            pointer-events: none;
+            text-align: center;
+            max-width: 90%;
+        }
+        .toast.success {
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .toast.error {
+            border-color: var(--red);
+            color: var(--red);
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal {
+            background: var(--card);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px 32px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal h2 {
+            margin-bottom: 14px;
+            font-size: 1.1rem;
+        }
+        .modal input,
+        .modal select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+        .modal .tipo-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .modal .tipo-btn {
+            flex: 1;
+            padding: 11px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .modal .tipo-btn.active.ingreso-activo {
+            border-color: var(--green);
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--green);
+        }
+        .modal .tipo-btn.active.gasto-activo {
+            border-color: var(--red);
+            background: rgba(255, 77, 106, 0.1);
+            color: var(--red);
+        }
+        .modal .quien-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .modal .quien-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .modal .quien-btn.active.priscilla-activo {
+            border-color: var(--priscilla);
+            background: rgba(255, 126, 179, 0.1);
+            color: var(--priscilla);
+        }
+        .modal .quien-btn.active.isaac-activo {
+            border-color: var(--isaac);
+            background: rgba(126, 200, 227, 0.1);
+            color: var(--isaac);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .modal-botones {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .modal-botones .btn {
+            flex: 1;
+        }
+        .btn-cancelar {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+        .movimiento-lista {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .movimiento-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .movimiento-item .info {
+            flex: 1;
+        }
+        .movimiento-item .cat {
+            color: var(--muted);
+            font-size: 0.68rem;
+        }
+        .text-green {
+            color: var(--green);
+            font-weight: 600;
+        }
+        .text-red {
+            color: var(--red);
+            font-weight: 600;
+        }
+        .btn-eliminar {
+            background: transparent;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px 8px;
+            opacity: 0.4;
+            transition: 0.2s;
+            margin-left: 4px;
+        }
+        .btn-eliminar:hover {
+            opacity: 1;
+        }
+
+        .estado-vacio {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--muted);
+        }
+        .estado-vacio .emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .estado-vacio p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .btn-peligro {
+            background: transparent;
+            border: 1px solid var(--red);
+            color: var(--red);
+            font-size: 0.7rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 4px;
+            width: 100%;
+        }
+        .btn-peligro:hover {
+            background: rgba(255, 77, 106, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <div class="sync-status" id="syncStatus">
+            <span class="sync-dot" id="syncDot"></span> 
+            <span id="syncText">Conectado · Tiempo real</span>
+        </div>
+
+        <header>
+            <h1>💰 Finanzas Familiares</h1>
+            <div class="mes" id="mesActual">Mayo 2026</div>
+        </header>
+
+        <!-- Resumen Principal -->
+        <div class="card">
+            <div class="resumen-grid">
+                <div class="resumen-item ingreso">
+                    <div class="label">Ingresos</div>
+                    <div class="valor" id="totalIngresos">$0</div>
+                </div>
+                <div class="resumen-item gasto">
+                    <div class="label">Gastos</div>
+                    <div class="valor" id="totalGastos">$0</div>
+                </div>
+                <div class="resumen-item utilidad">
+                    <div class="label">Utilidad</div>
+                    <div class="valor" id="utilidad">$0</div>
+                </div>
+            </div>
+            <div class="barra-container">
+                <div class="barra-label"><span>Tasa de gasto</span><span id="tasaGasto">0%</span></div>
+                <div class="barra"><div class="barra-fill barra-gasto" id="barraGasto" style="width:0%"></div></div>
+            </div>
+            <div style="margin-top:10px;font-size:0.72rem;color:var(--muted);">
+                Gastos fijos: <strong style="color:var(--tag-fijo);" id="totalFijos">$0</strong> &nbsp;|&nbsp;
+                Variables: <strong style="color:var(--tag-variable);" id="totalVariables">$0</strong>
+            </div>
+        </div>
+
+        <!-- Desglose de Gastos -->
+        <div class="card" id="cardDesglose">
+            <div class="seccion-titulo">📉 Desglose de Gastos</div>
+            <div id="desgloseGastos">
+                <div class="estado-vacio" id="estadoVacioGastos">
+                    <div class="emoji">📝</div>
+                    <p>Agrega gastos para ver el desglose</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eventos Musicales -->
+        <div class="card eventos-card">
+            <div class="seccion-titulo">🎸 Ingresos por Eventos Musicales</div>
+            <div class="row">
+                <span>Total eventos</span>
+                <strong id="totalEventos">$0</strong>
+            </div>
+            <div class="row">
+                <span style="color:var(--muted);">20% → Empresa</span>
+                <strong style="color:var(--accent);" id="calcEmpresa">$0</strong>
+            </div>
+            <div class="row">
+                <span style="color:var(--muted);">Restante libre eventos</span>
+                <span id="restanteEventos">$0</span>
+            </div>
+            <div style="font-size:0.65rem;color:var(--muted);margin-top:6px;">
+                * El 20% se calcula solo sobre ingresos con categoría "Evento música"
+            </div>
+        </div>
+
+        <!-- Ahorros -->
+        <div class="card">
+            <div class="seccion-titulo">📦 Mis Ahorros (sobre utilidad)</div>
+            <div class="row">
+                <div class="row-left">
+                    <span class="row-icono">🎵</span>
+                    <div>
+                        <span>Música</span>
+                        <span class="ahorro-porcentaje">10% utilidad</span>
+                    </div>
+                </div>
+                <span class="ahorro-monto" id="ahorroMusica">$0</span>
+            </div>
+            <div class="row">
+                <div class="row-left">
+                    <span class="row-icono">🏦</span>
+                    <div>
+                        <span>Fintual (Retiro)</span>
+                        <span class="ahorro-porcentaje">10% utilidad</span>
+                    </div>
+                </div>
+                <span class="ahorro-monto" id="ahorroFintual">$0</span>
+            </div>
+            <div class="row">
+                <div class="row-left">
+                    <span class="row-icono">🚨</span>
+                    <div>
+                        <span>Emergencia</span>
+                        <span class="ahorro-porcentaje">10% utilidad</span>
+                    </div>
+                </div>
+                <span class="ahorro-monto" id="ahorroEmergencia">$0</span>
+            </div>
+            <div class="row">
+                <div class="row-left">
+                    <span class="row-icono">🏢</span>
+                    <div>
+                        <span>Empresa</span>
+                        <span class="ahorro-porcentaje" id="porcentajeEmpresa">20% de eventos</span>
+                    </div>
+                </div>
+                <span class="ahorro-monto" id="ahorroEmpresa">$0</span>
+            </div>
+            <div class="total-row">
+                <span>Total ahorrado</span>
+                <span id="totalAhorro">$0</span>
+            </div>
+            <div class="disponible-box">
+                <div class="label">Disponible libre</div>
+                <div class="valor" id="disponible">$0</div>
+                <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">
+                    Utilidad − Todos los ahorros
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Movimientos -->
+        <div class="card">
+            <div class="seccion-titulo">📋 Últimos movimientos</div>
+            <div class="movimiento-lista" id="listaMovimientos">
+                <div class="estado-vacio" id="estadoVacioMovs">
+                    <div class="emoji">✨</div>
+                    <p>Mes nuevo, finanzas limpias.<br>¡Agrega tu primer movimiento!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <button class="btn btn-primary" onclick="abrirModal()">+ Agregar Movimiento</button>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="agregarGastosFijos()">📋 Cargar gastos fijos</button>
+        </div>
+        <button class="btn-peligro" onclick="reiniciarMes()">🗑️ Reiniciar mes a cero</button>
+    </div>
+
+    <!-- Modal Agregar Movimiento -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+        <div class="modal">
+            <h2>Nuevo Movimiento</h2>
+
+            <!-- Tipo: Ingreso o Gasto -->
+            <div class="tipo-toggle">
+                <button class="tipo-btn active ingreso-activo" id="btnIngreso" onclick="setTipo('ingreso')">💰 Ingreso</button>
+                <button class="tipo-btn" id="btnGasto" onclick="setTipo('gasto')">📉 Gasto</button>
+            </div>
+
+            <input type="number" id="inputMonto" placeholder="Monto ($)" min="0" step="1">
+            <select id="inputCategoria">
+                <option value="">-- Categoría --</option>
+            </select>
+            <input type="text" id="inputDescripcion" placeholder="Descripción (opcional)">
+
+            <div id="checkFijo" style="margin-bottom:10px;display:none;">
+                <label style="font-size:0.8rem;color:var(--muted);display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="esFijo" style="width:auto;margin:0;">
+                    ¿Es gasto fijo mensual?
+                </label>
+            </div>
+
+            <!-- Quién lo agrega -->
+            <div style="margin-bottom:10px;">
+                <label style="font-size:0.7rem;color:var(--muted);display:block;margin-bottom:4px;">Agregado por:</label>
+                <div class="quien-toggle">
+                    <button class="quien-btn active priscilla-activo" id="btnQuienPriscilla" onclick="setQuien('Priscilla')">🙋‍♀️ Priscilla</button>
+                    <button class="quien-btn" id="btnQuienIsaac" onclick="setQuien('Isaac')">👨 Isaac</button>
+                </div>
+            </div>
+
+            <div class="modal-botones">
+                <button class="btn btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" id="btnGuardar" onclick="guardarMovimiento()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js">
+    </script>
+
+    <script>
+        // ============ 🔥 CONFIGURACIÓN DE FIREBASE ============
+        const firebaseConfig = {
+            apiKey: "AIzaSyATQz5AI5U1VXz8NxzsOHoq0oJtl8JVbsM",
+            authDomain: "finanzas-familiares-410c8.firebaseapp.com",
+            projectId: "finanzas-familiares-410c8",
+            storageBucket: "finanzas-familiares-410c8.firebasestorage.app",
+            messagingSenderId: "906963295456",
+            appId: "1:906963295456:web:d6fe8ddbb84ccf4f8d0485"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const coleccionMovimientos = db.collection('movimientos');
+
+        // ============ CATEGORÍAS ============
+        const CATEGORIAS_INGRESO = ['Evento música', 'Coro', 'Freelance', 'Clases', 'Otro ingreso'];
+        const CATEGORIAS_GASTO = ['Renta', 'Gym', 'Transporte', 'Cel Pri', 'Cel Isaac', 'Gas', 'Internet', 'Despensa',
+            'Restaurantes', 'Contadora', 'Extra', 'Otro gasto'
+        ];
+        const GASTOS_FIJOS_DEFAULT = ['Renta', 'Gym', 'Internet', 'Contadora', 'Cel Pri', 'Cel Isaac'];
+
+        let movimientos = [];
+        let tipoSeleccionado = 'ingreso';
+        let quienSeleccionado = 'Priscilla';
+        let listenerUnsubscribe = null;
+        let toastTimeout = null;
+
+        // ============ TOAST ============
+        function mostrarToast(mensaje, tipo = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            if (toastTimeout) clearTimeout(toastTimeout);
+
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + tipo;
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+
+            toastTimeout = setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 2500);
+        }
+
+        // ============ SYNC STATUS ============
+        function setSyncStatus(estado) {
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            dot.className = 'sync-dot';
+            if (estado === 'syncing') {
+                dot.classList.add('syncing');
+                text.textContent = 'Sincronizando...';
+            } else if (estado === 'connected') {
+                text.textContent = 'Conectado · Tiempo real';
+            } else {
+                dot.style.background = 'var(--red)';
+                text.textContent = 'Desconectado';
+            }
+        }
+
+        // ============ FUNCIONES ============
+        function setTipo(tipo) {
+            tipoSeleccionado = tipo;
+            document.getElementById('btnIngreso').className =
+                'tipo-btn' + (tipo === 'ingreso' ? ' active ingreso-activo' : '');
+            document.getElementById('btnGasto').className =
+                'tipo-btn' + (tipo === 'gasto' ? ' active gasto-activo' : '');
+            document.getElementById('checkFijo').style.display = tipo === 'gasto' ? 'block' : 'none';
+            if (tipo === 'ingreso') document.getElementById('esFijo').checked = false;
+            actualizarCategorias();
+        }
+
+        function setQuien(quien) {
+            quienSeleccionado = quien;
+            document.getElementById('btnQuienPriscilla').className =
+                'quien-btn' + (quien === 'Priscilla' ? ' active priscilla-activo' : '');
+            document.getElementById('btnQuienIsaac').className =
+                'quien-btn' + (quien === 'Isaac' ? ' active isaac-activo' : '');
+        }
+
+        function actualizarCategorias() {
+            const select = document.getElementById('inputCategoria');
+            const cats = tipoSeleccionado === 'ingreso' ? CATEGORIAS_INGRESO : CATEGORIAS_GASTO;
+            select.innerHTML = '<option value="">-- Categoría --</option>';
+            cats.forEach(c => {
+                select.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+
+        function abrirModal() {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('inputMonto').value = '';
+            document.getElementById('inputDescripcion').value = '';
+            document.getElementById('inputCategoria').value = '';
+            document.getElementById('esFijo').checked = false;
+            setQuien('Priscilla');
+            setTipo('ingreso');
+            actualizarCategorias();
+            document.getElementById('checkFijo').style.display = 'none';
+            document.getElementById('inputMonto').focus();
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+
+        async function guardarMovimiento() {
+            const btnGuardar = document.getElementById('btnGuardar');
+            const monto = parseFloat(document.getElementById('inputMonto').value);
+            const categoria = document.getElementById('inputCategoria').value;
+            const descripcion = document.getElementById('inputDescripcion').value || categoria;
+            const esFijo = tipoSeleccionado === 'gasto' && document.getElementById('esFijo').checked;
+
+            if (!monto || monto <= 0 || !categoria) {
+                alert('Por favor completa monto y categoría');
+                return;
+            }
+
+            const esFijoAuto = tipoSeleccionado === 'gasto' && GASTOS_FIJOS_DEFAULT.includes(categoria);
+
+            const nuevoMovimiento = {
+                tipo: tipoSeleccionado,
+                monto: monto,
+                categoria: categoria,
+                descripcion: descripcion,
+                fijo: esFijo || esFijoAuto,
+                quien: quienSeleccionado,
+                fecha: firebase.firestore.Timestamp.now()
+            };
+
+            btnGuardar.textContent = 'Guardando...';
+            btnGuardar.disabled = true;
+
+            try {
+                await coleccionMovimientos.add(nuevoMovimiento);
+                cerrarModal();
+                mostrarToast('✅ Movimiento guardado', 'success');
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                mostrarToast('❌ Error al guardar. Revisa tu conexión', 'error');
+            } finally {
+                btnGuardar.textContent = 'Guardar';
+                btnGuardar.disabled = false;
+            }
+        }
+
+        async function eliminarMovimiento(id) {
+            if (!confirm('¿Eliminar este movimiento?')) return;
+            try {
+                setSyncStatus('syncing');
+                await coleccionMovimientos.doc(id).delete();
+                mostrarToast('🗑️ Movimiento eliminado', 'error');
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                mostrarToast('❌ Error al eliminar', 'error');
+            }
+        }
+
+        async function agregarGastosFijos() {
+            const yaExistenFijos = movimientos.some(m =>
+                m.tipo === 'gasto' && m.fijo && GASTOS_FIJOS_DEFAULT.includes(m.categoria)
+            );
+
+            if (yaExistenFijos) {
+                if (!confirm('Ya hay gastos fijos este mes. ¿Agregarlos de todas formas?')) return;
+            }
+
+            const gastosFijosPredefinidos = [
+                { monto: 16300, categoria: 'Renta', descripcion: 'Renta mensual', fijo: true },
+                { monto: 1500, categoria: 'Gym', descripcion: 'Gimnasio', fijo: true },
+                { monto: 490, categoria: 'Internet', descripcion: 'Internet casa', fijo: true },
+                { monto: 300, categoria: 'Contadora', descripcion: 'Contadora mensual', fijo: true },
+                { monto: 1800, categoria: 'Cel Pri', descripcion: 'Celular principal', fijo: true },
+                { monto: 1200, categoria: 'Cel Isaac', descripcion: 'Celular Isaac', fijo: true },
+            ];
+
+            let agregados = 0;
+            setSyncStatus('syncing');
+
+            for (const g of gastosFijosPredefinidos) {
+                const existe = movimientos.some(m =>
+                    m.tipo === 'gasto' && m.categoria === g.categoria && m.fijo
+                );
+                if (!existe) {
+                    try {
+                        await coleccionMovimientos.add({
+                            ...g,
+                            tipo: 'gasto',
+                            quien: 'Priscilla',
+                            fecha: firebase.firestore.Timestamp.now()
+                        });
+                        agregados++;
+                    } catch (e) {
+                        console.error('Error agregando:', g.categoria, e);
+                    }
+                }
+            }
+
+            if (agregados > 0) {
+                mostrarToast('✅ ' + agregados + ' gastos fijos agregados', 'success');
+            } else {
+                mostrarToast('Todos los gastos fijos ya estaban registrados', 'error');
+            }
+        }
+
+        function calcularTotales() {
+            let totalIngresos = 0;
+            let totalGastos = 0;
+            let totalEventos = 0;
+            let totalFijos = 0;
+            let totalVariables = 0;
+            let gastosPorCategoria = {};
+
+            movimientos.forEach(m => {
+                if (m.tipo === 'ingreso') {
+                    totalIngresos += m.monto;
+                    if (m.categoria === 'Evento música') {
+                        totalEventos += m.monto;
+                    }
+                } else {
+                    totalGastos += m.monto;
+                    if (m.fijo) {
+                        totalFijos += m.monto;
+                    } else {
+                        totalVariables += m.monto;
+                    }
+                    if (!gastosPorCategoria[m.categoria]) {
+                        gastosPorCategoria[m.categoria] = { total: 0, fijo: m.fijo };
+                    }
+                    gastosPorCategoria[m.categoria].total += m.monto;
+                }
+            });
+
+            const utilidad = totalIngresos - totalGastos;
+            const ahorroMusica = utilidad > 0 ? utilidad * 0.10 : 0;
+            const ahorroFintual = utilidad > 0 ? utilidad * 0.10 : 0;
+            const ahorroEmergencia = utilidad > 0 ? utilidad * 0.10 : 0;
+            const ahorroEmpresa = totalEventos * 0.20;
+            const totalAhorro = ahorroMusica + ahorroFintual + ahorroEmergencia + ahorroEmpresa;
+            const disponible = utilidad - totalAhorro;
+            const tasaGasto = totalIngresos > 0 ? (totalGastos / totalIngresos) * 100 : 0;
+            const restanteEventos = totalEventos - ahorroEmpresa;
+
+            return {
+                totalIngresos,
+                totalGastos,
+                utilidad,
+                totalEventos,
+                totalFijos,
+                totalVariables,
+                gastosPorCategoria,
+                ahorroMusica,
+                ahorroFintual,
+                ahorroEmergencia,
+                ahorroEmpresa,
+                totalAhorro,
+                disponible,
+                tasaGasto,
+                restanteEventos
+            };
+        }
+
+        function formatearPeso(num) {
+            return '$' + Math.round(num).toLocaleString('es-MX');
+        }
+
+        function actualizarTodo() {
+            const t = calcularTotales();
+
+            // Resumen
+            document.getElementById('totalIngresos').textContent = formatearPeso(t.totalIngresos);
+            document.getElementById('totalGastos').textContent = formatearPeso(t.totalGastos);
+            document.getElementById('utilidad').textContent = formatearPeso(t.utilidad);
+            document.getElementById('tasaGasto').textContent = t.tasaGasto.toFixed(1) + '%';
+            document.getElementById('barraGasto').style.width = Math.min(t.tasaGasto, 100) + '%';
+            document.getElementById('totalFijos').textContent = formatearPeso(t.totalFijos);
+            document.getElementById('totalVariables').textContent = formatearPeso(t.totalVariables);
+
+            // Desglose gastos
+            const desgloseDiv = document.getElementById('desgloseGastos');
+            const estadoVacioGastos = document.getElementById('estadoVacioGastos');
+            const gastosFijosArr = [];
+            const gastosVarArr = [];
+            for (const [cat, datos] of Object.entries(t.gastosPorCategoria)) {
+                if (datos.fijo) {
+                    gastosFijosArr.push({ cat, total: datos.total });
+                } else {
+                    gastosVarArr.push({ cat, total: datos.total });
+                }
+            }
+            gastosFijosArr.sort((a, b) => b.total - a.total);
+            gastosVarArr.sort((a, b) => b.total - a.total);
+
+            if (gastosFijosArr.length === 0 && gastosVarArr.length === 0) {
+                desgloseDiv.innerHTML = '';
+                if (estadoVacioGastos) {
+                    desgloseDiv.appendChild(estadoVacioGastos);
+                    estadoVacioGastos.style.display = 'block';
+                }
+            } else {
+                if (estadoVacioGastos) estadoVacioGastos.style.display = 'none';
+                let html = '';
+                if (gastosFijosArr.length > 0) {
+                    html +=
+                        '<div style="margin-bottom:4px;color:var(--tag-fijo);font-weight:600;font-size:0.7rem;">🔒 FIJOS</div>';
+                    gastosFijosArr.forEach(g => {
+                        html +=
+                            `<div class="desglose-item"><span>${g.cat}</span><span>${formatearPeso(g.total)}</span></div>`;
+                    });
+                }
+                if (gastosVarArr.length > 0) {
+                    html +=
+                        '<div style="margin:8px 0 4px;color:var(--tag-variable);font-weight:600;font-size:0.7rem;">🔄 VARIABLES</div>';
+                    gastosVarArr.forEach(g => {
+                        html +=
+                            `<div class="desglose-item"><span>${g.cat}</span><span>${formatearPeso(g.total)}</span></div>`;
+                    });
+                }
+                desgloseDiv.innerHTML = html;
+            }
+
+            // Eventos
+            document.getElementById('totalEventos').textContent = formatearPeso(t.totalEventos);
+            document.getElementById('calcEmpresa').textContent = formatearPeso(t.ahorroEmpresa);
+            document.getElementById('restanteEventos').textContent = formatearPeso(t.restanteEventos);
+
+            // Ahorros
+            document.getElementById('ahorroMusica').textContent = formatearPeso(t.ahorroMusica);
+            document.getElementById('ahorroFintual').textContent = formatearPeso(t.ahorroFintual);
+            document.getElementById('ahorroEmergencia').textContent = formatearPeso(t.ahorroEmergencia);
+            document.getElementById('ahorroEmpresa').textContent = formatearPeso(t.ahorroEmpresa);
+            document.getElementById('totalAhorro').textContent = formatearPeso(t.totalAhorro);
+            document.getElementById('disponible').textContent = formatearPeso(t.disponible);
+            document.getElementById('porcentajeEmpresa').textContent =
+                '20% de eventos (' + formatearPeso(t.totalEventos) + ')';
+
+            actualizarListaMovimientos();
+        }
+
+        function actualizarListaMovimientos() {
+            const lista = document.getElementById('listaMovimientos');
+            const estadoVacioMovs = document.getElementById('estadoVacioMovs');
+            const ultimos = movimientos.slice(-15).reverse();
+
+            if (ultimos.length === 0) {
+                lista.innerHTML = '';
+                if (estadoVacioMovs) {
+                    lista.appendChild(estadoVacioMovs);
+                    estadoVacioMovs.style.display = 'block';
+                }
+                return;
+            }
+
+            if (estadoVacioMovs) estadoVacioMovs.style.display = 'none';
+            lista.innerHTML = ultimos.map(m => `
+                <div class="movimiento-item">
+                    <div class="info">
+                        <span>${m.descripcion}</span>
+                        ${m.tipo === 'gasto' && m.fijo ? '<span class="tag tag-fijo">FIJO</span>' : ''}
+                        ${m.tipo === 'gasto' && !m.fijo ? '<span class="tag tag-variable">VAR</span>' : ''}
+                        ${m.quien === 'Priscilla' ? '<span class="tag-priscilla">Priscilla</span>' : ''}
+                        ${m.quien === 'Isaac' ? '<span class="tag-isaac">Isaac</span>' : ''}
+                        <div class="cat">${m.categoria}</div>
+                    </div>
+                    <span class="${m.tipo === 'ingreso' ? 'text-green' : 'text-red'}">
+                        ${m.tipo === 'ingreso' ? '+' : '−'}${formatearPeso(m.monto)}
+                    </span>
+                    <button class="btn-eliminar" onclick="eliminarMovimiento('${m.id}')" title="Eliminar">×</button>
+                </div>
+            `).join('');
+        }
+
+        async function reiniciarMes() {
+            if (movimientos.length === 0) {
+                mostrarToast('El mes ya está vacío', 'error');
+                return;
+            }
+            if (!confirm('¿Seguro que quieres borrar TODOS los movimientos de este mes? Esta acción no se puede deshacer.')) return;
+
+            setSyncStatus('syncing');
+            let eliminados = 0;
+            for (const m of movimientos) {
+                try {
+                    await coleccionMovimientos.doc(m.id).delete();
+                    eliminados++;
+                } catch (e) {
+                    console.error('Error eliminando:', m.id, e);
+                }
+            }
+            mostrarToast('🗑️ ' + eliminados + ' movimientos eliminados', 'error');
+        }
+
+        function actualizarMes() {
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+            const ahora = new Date();
+            document.getElementById('mesActual').textContent = meses[ahora.getMonth()] + ' ' + ahora.getFullYear();
+        }
+
+        // ============ ESCUCHAR CAMBIOS EN TIEMPO REAL ============
+        function iniciarListener() {
+            if (listenerUnsubscribe) listenerUnsubscribe();
+
+            setSyncStatus('syncing');
+
+            listenerUnsubscribe = coleccionMovimientos
+                .orderBy('fecha', 'desc')
+                .onSnapshot((snapshot) => {
+                    movimientos = [];
+                    snapshot.forEach((doc) => {
+                        movimientos.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    actualizarTodo();
+                    setSyncStatus('connected');
+                }, (error) => {
+                    console.error('Error en listener:', error);
+                    setSyncStatus('disconnected');
+                    mostrarToast('❌ Error de conexión. Reintentando...', 'error');
+                });
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cerrarModal();
+        });
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+        document.getElementById('inputCategoria').addEventListener('change', function() {
+            if (tipoSeleccionado === 'gasto' && GASTOS_FIJOS_DEFAULT.includes(this.value)) {
+                document.getElementById('esFijo').checked = true;
+            }
+        });
+
+        // ============ INICIALIZAR ============
+        actualizarMes();
+        iniciarListener();
+    </script>
+</body>
+</html>
